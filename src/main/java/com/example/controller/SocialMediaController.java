@@ -49,4 +49,19 @@ public class SocialMediaController {
         return ResponseEntity.status(200).body(newAccount);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<Account> handleLogin(@RequestBody Account inputAccount) {
+        Account account = accountService.findByUsername(inputAccount.getUsername());
+        
+        if (account == null) {
+            return ResponseEntity.status(401).body(null);
+        }
+
+        if (!account.getPassword().equals(inputAccount.getPassword())) {
+            return ResponseEntity.status(401).body(null);
+        }
+
+        return ResponseEntity.status(200).body(account);
+    }
+
 }
