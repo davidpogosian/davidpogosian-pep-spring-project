@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.entity.Account;
+import com.example.entity.Message;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
 
@@ -30,6 +31,18 @@ public class SocialMediaController {
     private boolean newAccountIsValid(Account account) {
         if (account.getUsername().equals("")) {return false;}
         if (account.getPassword().length() < 4) {return false;}
+        return true;
+    }
+
+    private boolean newMessageTextIsValid(String messageText) {
+        if (messageText.length() == 0) {return false;}
+        if (messageText.length() >= 255) {return false;}
+        return true;
+    }
+
+    private boolean newMessageIsValid(Message message) {
+        if (!newMessageTextIsValid(message.getMessageText())) {return false;}
+        if (accountService.findById(message.getPostedBy()) == null) {return false;}
         return true;
     }
 
@@ -62,6 +75,16 @@ public class SocialMediaController {
         }
 
         return ResponseEntity.status(200).body(account);
+    }
+
+    @PostMapping("/messages")
+    public ResponseEntity<Message> handleCreateNewMessage(@RequestBody Message inputMessage) {
+        if (!newMessageIsValid(inputMessage)) {
+            return ResponseEntity.status(400).body(null);
+        }
+
+        Message message = messageService.addMessage(inputMessage);
+        return ResponseEntity.status(200).body(message);
     }
 
 }
