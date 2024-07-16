@@ -34,17 +34,19 @@ public class SocialMediaController {
     }
 
     // Handle requests.
+
     @PostMapping("/register")
-    public ResponseEntity<Account> handleRegister(@RequestBody Account account) {
-        if (!newAccountIsValid(account)) {
+    public ResponseEntity<Account> handleRegister(@RequestBody Account inputAccount) {
+        if (!newAccountIsValid(inputAccount)) {
             return ResponseEntity.status(400).body(null);
         }
 
-        if (accountService.findByUsername(account.getUsername()) != null) {
+        if (accountService.findByUsername(inputAccount.getUsername()) != null) {
             return ResponseEntity.status(409).body(null);
         }
 
-        //accountService.addAccount(account);
+        Account newAccount = accountService.addAccount(inputAccount);
+        return ResponseEntity.status(200).body(newAccount);
     }
 
 }
