@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,13 +17,6 @@ import com.example.entity.Account;
 import com.example.entity.Message;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
-
-/**
- * TODO: You will need to write your own endpoints and handlers for your controller using Spring. The endpoints you will need can be
- * found in readme.md as well as the test cases. You be required to use the @GET/POST/PUT/DELETE/etc Mapping annotations
- * where applicable as well as the @ResponseBody and @PathVariable annotations. You should
- * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
- */
 
 @RestController
 public class SocialMediaController {
@@ -40,14 +34,14 @@ public class SocialMediaController {
         return true;
     }
 
-    private boolean newMessageTextIsValid(String messageText) {
+    private boolean messageTextIsValid(String messageText) {
         if (messageText.length() == 0) {return false;}
         if (messageText.length() >= 255) {return false;}
         return true;
     }
 
     private boolean newMessageIsValid(Message message) {
-        if (!newMessageTextIsValid(message.getMessageText())) {return false;}
+        if (!messageTextIsValid(message.getMessageText())) {return false;}
         if (accountService.findById(message.getPostedBy()) == null) {return false;}
         return true;
     }
@@ -113,4 +107,23 @@ public class SocialMediaController {
         return ResponseEntity.status(200).build();
     }
 
+    @PatchMapping("/messages/{message_id}")
+    public ResponseEntity<Integer> handleUpdateMessageById(@PathVariable("message_id") Integer messageId, @RequestBody Message inputMessage) {
+        if (messageService.findById(messageId) == null) {
+            return ResponseEntity.status(400).build();
+        }
+
+        if (!messageTextIsValid(inputMessage.getMessageText())) {
+            return ResponseEntity.status(400).build();
+        }
+
+        messageService.updateById(messageId, inputMessage.getMessageText());
+        return ResponseEntity.status(200).body(1);
+    }
+
+    @GetMapping("/accounts/{account_id}/messages")
+    public ResponseEntity<List<Message>> handleGetMessagesByAccountId(@PathVariable("account_id") Integer accountId) {
+        List<Message> messages = messageService.findAllByAccountId(accountId);
+        return ResponseEntity.status(200).body(messages);
+    }
 }

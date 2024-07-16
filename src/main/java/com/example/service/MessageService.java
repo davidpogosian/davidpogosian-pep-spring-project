@@ -47,4 +47,17 @@ public class MessageService {
         }
         return rowsAffected;
     }
+
+    public void updateById(Integer messageId, String newText) {
+        Optional<Message> optionalMessage = messageRepository.findById(messageId);
+        if (optionalMessage.isPresent()) {
+            Message message = optionalMessage.get();
+            message.setMessageText(newText);
+            messageRepository.save(message);
+        }
+    }
+
+    public List<Message> findAllByAccountId(Integer accountId) {
+        return messageRepository.findAllByPostedBy(accountId);
+    }
 }
