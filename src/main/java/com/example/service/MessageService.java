@@ -2,6 +2,7 @@ package com.example.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,5 +27,24 @@ public class MessageService {
             messages.add(message);
         }
         return messages;
+    }
+
+    public Message findById(Integer messageId) {
+        Optional<Message> optionalMessage = messageRepository.findById(messageId);
+        if (optionalMessage.isPresent()) {
+            return optionalMessage.get();
+        } else {
+            return null;
+        }
+    }
+
+    public Integer deleteById(Integer messageId) {
+        int rowsAffected = 0;
+        Optional<Message> optionalMessage = messageRepository.findById(messageId);
+        if (optionalMessage.isPresent()) {
+            rowsAffected = 1;
+            messageRepository.deleteById(messageId);
+        }
+        return rowsAffected;
     }
 }
